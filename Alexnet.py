@@ -64,4 +64,3 @@ def alexnet(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> A
         model.load_state_dict(state_dict)
     return model
 
-alexnet(pretrained=True)

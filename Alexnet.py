@@ -3,9 +3,7 @@ import torch.nn as nn
 from torchvision.models.utils import load_state_dict_from_url
 from typing import Any
 
-
 __all__ = ['AlexNet', 'alexnet']
-
 
 model_urls = {
     'alexnet': 'https://download.pytorch.org/models/alexnet-owt-4df8aa71.pth',
@@ -42,6 +40,14 @@ class AlexNet(nn.Module):
             nn.Linear(4096, num_classes),
         )
 
+        self.domain = nn.Sequential(nn.Dropout(),
+                                    nn.Linear(256 * 6 * 6, 4096),
+                                    nn.ReLU(inplace=True),
+                                    nn.Dropout(),
+                                    nn.Linear(4096, 4096),
+                                    nn.ReLU(inplace=True),
+                                    nn.Linear(4096, 2), )
+
     def forward(self, x: torch.Tensor) -> torch.Tensor:
         x = self.features(x)
         x = self.avgpool(x)
@@ -61,6 +67,10 @@ def alexnet(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> A
     if pretrained:
         state_dict = load_state_dict_from_url(model_urls['alexnet'],
                                               progress=progress)
-        model.load_state_dict(state_dict)
-    return model
+        model.load_state_dict(state_dict, strict=False)
 
+        model.domain.load_state_dict(model.classifier.state_dict(), strict=False)
+
+    # updating last domain classifier output
+    # model.domain[6] = nn.Linear(4096,2)
+    return model

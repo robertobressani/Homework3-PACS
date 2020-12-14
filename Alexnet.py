@@ -69,8 +69,8 @@ def alexnet(pretrained: bool = False, progress: bool = True, **kwargs: Any) -> A
                                               progress=progress)
         model.load_state_dict(state_dict, strict=False)
 
-        model.domain.load_state_dict(model.classifier.state_dict(), strict=False)
+        model.domain.load_state_dict(model.classifier.state_dict())
 
     # updating last domain classifier output
-    # model.domain[6] = nn.Linear(4096,2)
+    model.domain[6] = nn.Linear(4096, 2)
     return model
